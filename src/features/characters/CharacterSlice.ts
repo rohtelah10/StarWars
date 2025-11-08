@@ -3,6 +3,9 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const API_PEOPLE = "https://swapi.dev/api/people/";
+const API_SPECIES = "https://swapi.dev/api/species/";
+const API_PLANETS = "https://swapi.dev/api/planets/";
+const API_FILMS = "https://swapi.dev/api/films/";
 
 export interface Character {
   name: string;
@@ -75,66 +78,56 @@ export const fetchCharacters = createAsyncThunk<
   "characters/fetchCharacters",
   async ({ page = 1, searchTerm = "", filters }, thunkAPI) => {
     try {
-      let allCharacters: Character[] = [];
-      let totalCount = 0;
+      let peopleRes = await axios.get(`${API_PEOPLE}?page=${page}&search=${encodeURIComponent(searchTerm)}`);
+      let people: Character[] = peopleRes.data.results;
+      let totalCount = peopleRes.data.count;
 
-      // 1️⃣ Name search first
-      const peopleRes = await axios.get(`${API_PEOPLE}?page=${page}&search=${encodeURIComponent(searchTerm)}`);
-      allCharacters = peopleRes.data.results;
-      totalCount = peopleRes.data.count;
-
-      // 2️⃣ Species filter
+      // Species filter
       if (filters?.species) {
-
-          console.log(" URI : ", encodeURIComponent(filters.species));
-          
-        console.log(`https://swapi.dev/api/species/?name=${encodeURIComponent(filters.species)}`);
-        const speciesRes = await axios.get(
-          `https://swapi.dev/api/species/?name=${encodeURIComponent(filters.species)}`
+        const speciesRes = await axios.get(API_SPECIES);
+        const matchingSpecies = speciesRes.data.results.find(
+          (s: any) => s.name.toLowerCase() === filters.species.toLowerCase()
         );
-        const matchingSpecies = speciesRes.data.results[0];
-        console.log("speciesRes after : ", speciesRes);
-        console.log("matching species : ", matchingSpecies);
         if (matchingSpecies && matchingSpecies.people.length > 0) {
-          allCharacters = await fetchCharactersByUrls(matchingSpecies.people);
-          totalCount = allCharacters.length;
+          people = await fetchCharactersByUrls(matchingSpecies.people);
+          totalCount = people.length;
         } else {
-          allCharacters = [];
+          people = [];
           totalCount = 0;
         }
       }
 
-      // 3️⃣ Homeworld filter
+      // Homeworld filter
       if (filters?.homeworld) {
-        const planetRes = await axios.get(
-          `https://swapi.dev/api/planets/?name=${encodeURIComponent(filters.homeworld)}`
+        const planetsRes = await axios.get(API_PLANETS);
+        const matchingPlanet = planetsRes.data.results.find(
+          (p: any) => p.name.toLowerCase() === filters.homeworld.toLowerCase()
         );
-        const matchingPlanet = planetRes.data.results[0];
         if (matchingPlanet) {
-          allCharacters = allCharacters.filter((p) => p.homeworld === matchingPlanet.url);
-          totalCount = allCharacters.length;
+          people = people.filter((p) => p.homeworld === matchingPlanet.url);
+          totalCount = people.length;
         } else {
-          allCharacters = [];
+          people = [];
           totalCount = 0;
         }
       }
 
-      // 4️⃣ Film filter
+      // Film filter
       if (filters?.film) {
-        const filmRes = await axios.get(
-          `https://swapi.dev/api/films/?title=${encodeURIComponent(filters.film)}`
+        const filmsRes = await axios.get(API_FILMS);
+        const matchingFilm = filmsRes.data.results.find(
+          (f: any) => f.title.toLowerCase() === filters.film.toLowerCase()
         );
-        const matchingFilm = filmRes.data.results[0];
         if (matchingFilm) {
-          allCharacters = allCharacters.filter((p) => matchingFilm.characters.includes(p.url));
-          totalCount = allCharacters.length;
+          people = people.filter((p) => matchingFilm.characters.includes(p.url));
+          totalCount = people.length;
         } else {
-          allCharacters = [];
+          people = [];
           totalCount = 0;
         }
       }
 
-      return { results: allCharacters, count: totalCount };
+      return { results: people, count: totalCount };
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message || "Failed to fetch characters");
     }
