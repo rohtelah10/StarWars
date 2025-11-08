@@ -47,7 +47,6 @@ const initialState: CharacterState = {
   },
 };
 
-// 🔍 Async thunk to fetch characters with filters
 export const fetchCharacters = createAsyncThunk<
   { results: Character[]; count: number },
   { page?: number; searchTerm?: string; filters?: Filters },
@@ -56,14 +55,16 @@ export const fetchCharacters = createAsyncThunk<
   "characters/fetchCharacters",
   async ({ page = 1, searchTerm = "", filters }, thunkAPI) => {
     try {
-      // 1️⃣ Fetch base people with name search
+      // 1️⃣ Fetch base people
       const peopleRes = await axios.get(`${API_BASE}?page=${page}&search=${searchTerm}`);
       let people: Character[] = peopleRes.data.results;
-      const totalCountFromAPI = peopleRes.data.count; // <-- total count for pagination
+      const totalCountFromAPI = peopleRes.data.count;
 
       // 2️⃣ Filter by Species
       if (filters?.species) {
-        const speciesRes = await axios.get(`https://swapi.dev/api/species/?search=${filters.species}`);
+        const speciesRes = await axios.get(
+          `https://swapi.dev/api/species/?name=${encodeURIComponent(filters.species)}`
+        );
         const matchingSpecies = speciesRes.data.results[0];
         if (matchingSpecies) {
           people = people.filter((p) => matchingSpecies.people.includes(p.url));
@@ -72,7 +73,9 @@ export const fetchCharacters = createAsyncThunk<
 
       // 3️⃣ Filter by Homeworld
       if (filters?.homeworld) {
-        const planetRes = await axios.get(`https://swapi.dev/api/planets/?search=${filters.homeworld}`);
+        const planetRes = await axios.get(
+          `https://swapi.dev/api/planets/?name=${encodeURIComponent(filters.homeworld)}`
+        );
         const matchingPlanet = planetRes.data.results[0];
         if (matchingPlanet) {
           people = people.filter((p) => p.homeworld === matchingPlanet.url);
@@ -81,14 +84,16 @@ export const fetchCharacters = createAsyncThunk<
 
       // 4️⃣ Filter by Film
       if (filters?.film) {
-        const filmRes = await axios.get(`https://swapi.dev/api/films/?search=${filters.film}`);
+        const filmRes = await axios.get(
+          `https://swapi.dev/api/films/?title=${encodeURIComponent(filters.film)}`
+        );
         const matchingFilm = filmRes.data.results[0];
         if (matchingFilm) {
           people = people.filter((p) => matchingFilm.characters.includes(p.url));
         }
       }
 
-      return { results: people, count: totalCountFromAPI }; // ✅ use API totalCount
+      return { results: people, count: totalCountFromAPI };
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message || "Failed to fetch characters");
     }
@@ -124,7 +129,7 @@ const characterSlice = createSlice({
       .addCase(fetchCharacters.fulfilled, (state, action) => {
         state.loading = false;
         state.characters = action.payload.results;
-        state.totalCount = action.payload.count; // ✅ fixed
+        state.totalCount = action.payload.count;
       })
       .addCase(fetchCharacters.rejected, (state, action) => {
         state.loading = false;

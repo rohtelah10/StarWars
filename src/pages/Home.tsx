@@ -28,9 +28,9 @@ export default function Home() {
     >
       {/* 🌌 Top Navbar */}
       <header className="flex flex-col md:flex-row justify-between items-center px-6 py-4 bg-black/70 backdrop-blur-md shadow-lg border-b border-yellow-500">
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-widest text-yellow-400">
-          🌌 Star Wars Characters Dashboard
-        </h1>
+    <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-wider drop-shadow-xl flex items-center gap-2">
+  ★ STAR WARS CHARACTERS ★
+</h1>
 
         <div className="flex items-center gap-4 mt-2 md:mt-0">
           {user && (
