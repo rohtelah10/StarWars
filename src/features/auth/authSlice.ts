@@ -132,9 +132,9 @@ const authSlice = createSlice({
       })
 
       // refresh
-      .addCase(refreshToken.pending, (s) => {
-        // optionally mark as loading but keep UI intact
-      })
+    //   .addCase(refreshToken.pending, (s) => {
+    //     // optionally mark as loading but keep UI intact
+    //   })
       .addCase(refreshToken.fulfilled, (s, a) => {
         s.token = a.payload.token;
         s.expiresIn = a.payload.expiresIn ?? null;

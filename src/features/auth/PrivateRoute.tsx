@@ -1,5 +1,4 @@
 // src/features/auth/PrivateRoute.tsx
-import React from 'react';
 import { useAppSelector } from '../../app/hooks';
 import { Navigate, Outlet } from 'react-router-dom';
 

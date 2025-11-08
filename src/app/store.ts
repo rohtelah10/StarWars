@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../features/auth/authSlice";
+//@ts-ignore
 import characterReducer from "../features/characters/characterSlice";
 
 export const store = configureStore({

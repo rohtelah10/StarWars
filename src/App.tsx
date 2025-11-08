@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginForm from './features/auth/LoginForm';
 import SignupForm from './features/auth/SignupForm';
@@ -22,7 +22,7 @@ export default function App() {
   }, [auth.token, dispatch]);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/star-wars">
       <Routes>
         <Route path="/login" element={<LoginForm />} />
         <Route path="/signup" element={<SignupForm />} />

@@ -1,5 +1,5 @@
 // src/features/characters/CharacterList.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import { fetchCharacters, setPage } from "./characterSlice";
 import type { Character } from "./characterSlice";

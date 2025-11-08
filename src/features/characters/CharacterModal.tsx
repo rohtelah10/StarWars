@@ -1,5 +1,5 @@
 // src/features/characters/CharacterModal.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Character } from "./characterSlice";
 import { fetchHomeworld } from "../../utils/api";
 

@@ -1,22 +1,21 @@
-import React from "react";
 import { useAppSelector, useAppDispatch } from "../app/hooks";
 import { logout, refreshToken } from "../features/auth/authSlice";
 import CharacterList from "../features/characters/CharacterList";
 import CharacterFilters from "../components/CharacterFilters";
 
 // Map species to accent colors
-const speciesColors: Record<string, string> = {
-  Human: "bg-red-700/70",
-  Droid: "bg-blue-700/70",
-  Wookiee: "bg-orange-700/70",
-  "Twi'lek": "bg-purple-700/70",
-  Rodian: "bg-green-700/70",
-  default: "bg-gray-800/70",
-};
+// const speciesColors: Record<string, string> = {
+//   Human: "bg-red-700/70",
+//   Droid: "bg-blue-700/70",
+//   Wookiee: "bg-orange-700/70",
+//   "Twi'lek": "bg-purple-700/70",
+//   Rodian: "bg-green-700/70",
+//   default: "bg-gray-800/70",
+// };
 
 export default function Home() {
   const dispatch = useAppDispatch();
-  const { user, token, status } = useAppSelector((s) => s.auth);
+  const { user, status } = useAppSelector((s) => s.auth);
 
   const handleLogout = () => dispatch(logout());
   const handleRefresh = () => dispatch(refreshToken());
@@ -65,7 +64,7 @@ export default function Home() {
 
         {/* Character List */}
         <div className="">
-          <CharacterList speciesColors={speciesColors} />
+          <CharacterList />
         </div>
       </main>
     </div>
