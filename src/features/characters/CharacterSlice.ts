@@ -85,11 +85,15 @@ export const fetchCharacters = createAsyncThunk<
 
       // 2️⃣ Species filter
       if (filters?.species) {
+
+          console.log(" URI : ", encodeURIComponent(filters.species));
+          
+        console.log(`https://swapi.dev/api/species/?name=${encodeURIComponent(filters.species)}`);
         const speciesRes = await axios.get(
           `https://swapi.dev/api/species/?name=${encodeURIComponent(filters.species)}`
         );
         const matchingSpecies = speciesRes.data.results[0];
-        console.log("speciesRes : ", speciesRes);
+        console.log("speciesRes after : ", speciesRes);
         console.log("matching species : ", matchingSpecies);
         if (matchingSpecies && matchingSpecies.people.length > 0) {
           allCharacters = await fetchCharactersByUrls(matchingSpecies.people);
