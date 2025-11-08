@@ -1,11 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import type { AxiosResponse } from "axios";
 
-const API_PEOPLE = "https://swapi.dev/api/people/";
-const API_SPECIES = "https://swapi.dev/api/species/";
-const API_PLANETS = "https://swapi.dev/api/planets/";
-const API_FILMS = "https://swapi.dev/api/films/";
+const API_BASE = "https://swapi.dev/api/people/";
+
+
+interface PaginatedResponse {
+  results: any[]; // You may want to specify the exact type of results if possible
+  next: string | null;
+}
 
 export interface Character {
   name: string;
@@ -50,26 +54,21 @@ const initialState: CharacterState = {
   },
 };
 
-// Helper to fetch a single resource by URL
-async function fetchResource(url: string) {
-  const res = await axios.get(url);
-  return res.data;
-}
+// Utility to fetch all paginated results
+async function fetchAllPages(url: string): Promise<any[]> {
+  let results: any[] = [];
+  let nextUrl: string | null = url;
 
-// Helper to fetch multiple characters by array of URLs
-async function fetchCharactersByUrls(urls: string[]): Promise<Character[]> {
-  const results: Character[] = [];
-  for (const url of urls) {
-    try {
-      const data = await fetchResource(url);
-      results.push(data);
-    } catch (err) {
-      console.warn("Failed to fetch character:", url);
-    }
+  while (nextUrl) {
+    const res: AxiosResponse<PaginatedResponse> = await axios.get(nextUrl);
+    results = results.concat(res.data.results);
+    nextUrl = res.data.next;
   }
+
   return results;
 }
 
+// Async thunk to fetch characters with filters
 export const fetchCharacters = createAsyncThunk<
   { results: Character[]; count: number },
   { page?: number; searchTerm?: string; filters?: Filters },
@@ -78,56 +77,54 @@ export const fetchCharacters = createAsyncThunk<
   "characters/fetchCharacters",
   async ({ page = 1, searchTerm = "", filters }, thunkAPI) => {
     try {
-      let peopleRes = await axios.get(`${API_PEOPLE}?page=${page}&search=${encodeURIComponent(searchTerm)}`);
+      // 1️⃣ Fetch people from the main endpoint
+      const peopleRes = await axios.get(`${API_BASE}?page=${page}&search=${searchTerm}`);
       let people: Character[] = peopleRes.data.results;
-      let totalCount = peopleRes.data.count;
+      const totalCountFromAPI = peopleRes.data.count;
 
-      // Species filter
+      // 2️⃣ Filter by Species
       if (filters?.species) {
-        const speciesRes = await axios.get(API_SPECIES);
-        const matchingSpecies = speciesRes.data.results.find(
+        const allSpecies = await fetchAllPages("https://swapi.dev/api/species/");
+        const speciesObj = allSpecies.find(
           (s: any) => s.name.toLowerCase() === filters.species.toLowerCase()
         );
-        if (matchingSpecies && matchingSpecies.people.length > 0) {
-          people = await fetchCharactersByUrls(matchingSpecies.people);
-          totalCount = people.length;
+        if (speciesObj) {
+          const speciesPeopleUrls: string[] = speciesObj.people;
+          people = people.filter((p) => speciesPeopleUrls.includes(p.url));
         } else {
           people = [];
-          totalCount = 0;
         }
       }
 
-      // Homeworld filter
+      // 3️⃣ Filter by Homeworld
       if (filters?.homeworld) {
-        const planetsRes = await axios.get(API_PLANETS);
-        const matchingPlanet = planetsRes.data.results.find(
+        const allPlanets = await fetchAllPages("https://swapi.dev/api/planets/");
+        const planetObj = allPlanets.find(
           (p: any) => p.name.toLowerCase() === filters.homeworld.toLowerCase()
         );
-        if (matchingPlanet) {
-          people = people.filter((p) => p.homeworld === matchingPlanet.url);
-          totalCount = people.length;
+        if (planetObj) {
+          const planetResidents: string[] = planetObj.residents;
+          people = people.filter((p) => planetResidents.includes(p.url));
         } else {
           people = [];
-          totalCount = 0;
         }
       }
 
-      // Film filter
+      // 4️⃣ Filter by Film
       if (filters?.film) {
-        const filmsRes = await axios.get(API_FILMS);
-        const matchingFilm = filmsRes.data.results.find(
+        const allFilms = await fetchAllPages("https://swapi.dev/api/films/");
+        const filmObj = allFilms.find(
           (f: any) => f.title.toLowerCase() === filters.film.toLowerCase()
         );
-        if (matchingFilm) {
-          people = people.filter((p) => matchingFilm.characters.includes(p.url));
-          totalCount = people.length;
+        if (filmObj) {
+          const filmCharacters: string[] = filmObj.characters;
+          people = people.filter((p) => filmCharacters.includes(p.url));
         } else {
           people = [];
-          totalCount = 0;
         }
       }
 
-      return { results: people, count: totalCount };
+      return { results: people, count: totalCountFromAPI };
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message || "Failed to fetch characters");
     }
