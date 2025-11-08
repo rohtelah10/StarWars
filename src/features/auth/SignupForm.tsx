@@ -1,79 +1,83 @@
-// src/features/auth/SignupForm.tsx
-import React, { useState, useEffect } from 'react';
-import { signup } from './authSlice';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { signup } from "./authSlice";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function SignupForm() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const auth = useAppSelector((s) => s.auth);
 
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
-    if (auth.user && auth.token) {
-      navigate('/', { replace: true });
-    }
+    if (auth.user && auth.token) navigate("/", { replace: true });
   }, [auth.user, auth.token, navigate]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await dispatch(signup({ email, password, name }));
+    await dispatch(signup({ name, email, password }));
   };
 
   return (
-    <div className="max-w-md mx-auto mt-16 p-6 bg-white/80 dark:bg-gray-800 rounded-xl shadow">
-      <h2 className="text-2xl font-semibold mb-4">Sign up</h2>
-      {auth.error && <div className="text-sm text-red-600 mb-3">{auth.error}</div>}
-      <form onSubmit={onSubmit} className="space-y-4">
-        <label className="block">
-          <span className="text-sm">Name</span>
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: `url('https://wallpapers.com/images/featured/star-wars-plzcoaffexgf4h81.jpg')` }}
+    >
+      <div className="w-full max-w-md p-8 bg-black/70 backdrop-blur-md rounded-xl shadow-lg border border-blue-700">
+        <h2 className="text-3xl font-bold text-blue-500 text-center mb-6 tracking-widest">
+          GALACTIC SIGN UP
+        </h2>
+
+        {auth.error && (
+          <div className="text-red-500 mb-4 text-center font-semibold">
+            {auth.error}
+          </div>
+        )}
+
+        <form onSubmit={onSubmit} className="space-y-5">
           <input
+            type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 block w-full rounded-md border p-2"
+            placeholder="Full Name"
+            className="w-full px-4 py-2 rounded-md border border-gray-600 bg-gray-900 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-700 outline-none"
             required
           />
-        </label>
-        <label className="block">
-          <span className="text-sm">Email</span>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full rounded-md border p-2"
+            placeholder="Email"
+            className="w-full px-4 py-2 rounded-md border border-gray-600 bg-gray-900 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-700 outline-none"
             required
           />
-        </label>
-        <label className="block">
-          <span className="text-sm">Password</span>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block w-full rounded-md border p-2"
+            placeholder="Password"
+            className="w-full px-4 py-2 rounded-md border border-gray-600 bg-gray-900 text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-700 outline-none"
             required
           />
-        </label>
+          <button
+            type="submit"
+            disabled={auth.status === "loading"}
+            className="w-full py-2 bg-blue-700 hover:bg-blue-500 rounded-md font-bold text-black uppercase tracking-wide transition-all duration-300"
+          >
+            {auth.status === "loading" ? "Creating…" : "Create Account"}
+          </button>
+        </form>
 
-        <button
-          type="submit"
-          className="w-full py-2 rounded-md bg-green-600 text-white"
-          disabled={auth.status === 'loading'}
-        >
-          {auth.status === 'loading' ? 'Creating…' : 'Create account'}
-        </button>
-      </form>
-
-      <p className="text-sm mt-4">
-        Already have an account?{' '}
-        <Link to="/login" className="text-blue-600 underline">
-          Sign in
-        </Link>
-      </p>
+        <p className="text-sm text-gray-300 mt-4 text-center">
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-400 hover:underline">
+            Sign In
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

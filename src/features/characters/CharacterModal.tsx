@@ -31,60 +31,137 @@ export default function CharacterModal({ character, onClose }: CharacterModalPro
   if (!character) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md p-6 relative shadow-lg">
-        <button
-          className="absolute top-3 right-3 text-gray-600 hover:text-red-500 text-xl"
-          onClick={onClose}
-        >
-          ✖
-        </button>
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 overflow-y-auto">
+      {/* Animated background stars */}
+      <div className="absolute inset-0 opacity-30" style={{
+        backgroundImage: 'radial-gradient(2px 2px at 20% 30%, white, transparent), radial-gradient(2px 2px at 60% 70%, white, transparent), radial-gradient(1px 1px at 50% 50%, white, transparent), radial-gradient(1px 1px at 80% 10%, white, transparent), radial-gradient(2px 2px at 90% 60%, white, transparent), radial-gradient(2px 2px at 30% 80%, white, transparent)',
+        backgroundSize: '200% 200%',
+      }}></div>
 
-        <h2 className="text-2xl font-semibold mb-3">{character.name}</h2>
+      <div className="min-h-full flex items-center justify-center p-4 py-8">
+        <div className="relative max-w-xl w-full">
+        {/* Outer glow */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 rounded-3xl blur opacity-40 animate-pulse"></div>
+        
+        {/* Modal container */}
+        <div className="relative bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 rounded-3xl border-4 border-yellow-400/50 shadow-2xl overflow-hidden">
+          {/* Top accent bar */}
+          <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-yellow-400 to-transparent"></div>
+          
+          {/* Corner decorations */}
+          <div className="absolute top-0 left-0 w-12 h-12 border-t-2 border-l-2 border-yellow-400/60"></div>
+          <div className="absolute top-0 right-0 w-12 h-12 border-t-2 border-r-2 border-yellow-400/60"></div>
+          <div className="absolute bottom-0 left-0 w-12 h-12 border-b-2 border-l-2 border-yellow-400/60"></div>
+          <div className="absolute bottom-0 right-0 w-12 h-12 border-b-2 border-r-2 border-yellow-400/60"></div>
 
-        {loading ? (
-          <p className="text-gray-500">Loading homeworld details...</p>
-        ) : (
-          <>
-            <div className="space-y-2 text-gray-700 dark:text-gray-200">
-              <p>
-                <strong>Height:</strong> {(Number(character.height) / 100).toFixed(2)} m
-              </p>
-              <p>
-                <strong>Mass:</strong> {character.mass} kg
-              </p>
-              <p>
-                <strong>Birth Year:</strong> {character.birth_year}
-              </p>
-              <p>
-                <strong>Films:</strong> {character.films.length}
-              </p>
-              <p>
-                <strong>Date Added:</strong>{" "}
-                {new Date(character.created).toLocaleDateString("en-GB")}
-              </p>
+          {/* Close button */}
+          <button
+            className="absolute top-3 right-3 z-10 bg-red-600 hover:bg-red-700 text-white rounded-full w-9 h-9 flex items-center justify-center text-lg font-bold transition-all duration-300 transform hover:scale-110 hover:rotate-90 shadow-lg border-2 border-red-400"
+            onClick={onClose}
+          >
+            ✖
+          </button>
+
+          {/* Content */}
+          <div className="relative p-6 pt-8">
+            {/* Character name header */}
+            <div className="text-center mb-5">
+              <h2 className="text-3xl font-extrabold tracking-wider mb-2">
+                <span className="bg-gradient-to-r from-yellow-200 via-yellow-400 to-yellow-200 bg-clip-text text-transparent drop-shadow-[0_2px_12px_rgba(250,204,21,0.9)]">
+                  {character.name.toUpperCase()}
+                </span>
+              </h2>
+              <div className="h-px bg-gradient-to-r from-transparent via-yellow-400/60 to-transparent"></div>
             </div>
 
-            {homeworld && (
-              <div className="mt-4 border-t border-gray-300 dark:border-gray-700 pt-3">
-                <h3 className="font-semibold mb-2">🌍 Homeworld</h3>
-                <p>
-                  <strong>Name:</strong> {homeworld.name}
-                </p>
-                <p>
-                  <strong>Terrain:</strong> {homeworld.terrain}
-                </p>
-                <p>
-                  <strong>Climate:</strong> {homeworld.climate}
-                </p>
-                <p>
-                  <strong>Population:</strong> {homeworld.population}
-                </p>
+            {loading ? (
+              <div className="text-center py-6">
+                <div className="text-yellow-400 text-lg font-bold mb-2 animate-pulse">
+                  ⭐ ACCESSING GALACTIC DATABASE ⭐
+                </div>
+                <div className="text-gray-400 text-sm">Loading homeworld details...</div>
               </div>
+            ) : (
+              <>
+                {/* Character stats section */}
+                <div className="mb-5">
+                  <h3 className="text-yellow-400 text-lg font-bold mb-3 tracking-wider flex items-center gap-2">
+                    <span className="text-xl">👤</span> CHARACTER PROFILE
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 border border-yellow-400/30 hover:border-yellow-400/60 transition-colors">
+                      <div className="text-gray-400 text-xs uppercase tracking-wide mb-1">Height</div>
+                      <div className="text-yellow-400 text-base font-bold">
+                        {(Number(character.height) / 100).toFixed(2)} m
+                      </div>
+                    </div>
+                    <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 border border-yellow-400/30 hover:border-yellow-400/60 transition-colors">
+                      <div className="text-gray-400 text-xs uppercase tracking-wide mb-1">Mass</div>
+                      <div className="text-yellow-400 text-base font-bold">{character.mass} kg</div>
+                    </div>
+                    <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 border border-yellow-400/30 hover:border-yellow-400/60 transition-colors">
+                      <div className="text-gray-400 text-xs uppercase tracking-wide mb-1">Birth Year</div>
+                      <div className="text-yellow-400 text-base font-bold">{character.birth_year}</div>
+                    </div>
+                    <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 border border-yellow-400/30 hover:border-yellow-400/60 transition-colors">
+                      <div className="text-gray-400 text-xs uppercase tracking-wide mb-1">Films</div>
+                      <div className="text-yellow-400 text-base font-bold">{character.films.length} Appearances</div>
+                    </div>
+                  </div>
+                  
+                  {/* Date added */}
+                  <div className="mt-2 bg-black/40 backdrop-blur-sm rounded-lg p-3 border border-yellow-400/30">
+                    <div className="text-gray-400 text-xs uppercase tracking-wide mb-1">Database Entry Date</div>
+                    <div className="text-yellow-400 text-base font-bold">
+                      {new Date(character.created).toLocaleDateString("en-GB")}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Homeworld section */}
+                {homeworld && (
+                  <div>
+                    {/* Divider */}
+                    <div className="h-px bg-gradient-to-r from-transparent via-yellow-400/60 to-transparent mb-5"></div>
+                    
+                    <h3 className="text-yellow-400 text-lg font-bold mb-3 tracking-wider flex items-center gap-2">
+                      <span className="text-xl">🌍</span> HOMEWORLD DATA
+                    </h3>
+                    <div className="space-y-2">
+                      <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 border border-cyan-400/30 hover:border-cyan-400/60 transition-colors">
+                        <div className="text-gray-400 text-xs uppercase tracking-wide mb-1">Planet Name</div>
+                        <div className="text-cyan-400 text-lg font-bold">{homeworld.name}</div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 border border-cyan-400/30 hover:border-cyan-400/60 transition-colors">
+                          <div className="text-gray-400 text-xs uppercase tracking-wide mb-1">Terrain</div>
+                          <div className="text-cyan-400 text-base font-bold capitalize">{homeworld.terrain}</div>
+                        </div>
+                        <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 border border-cyan-400/30 hover:border-cyan-400/60 transition-colors">
+                          <div className="text-gray-400 text-xs uppercase tracking-wide mb-1">Climate</div>
+                          <div className="text-cyan-400 text-base font-bold capitalize">{homeworld.climate}</div>
+                        </div>
+                      </div>
+                      <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 border border-cyan-400/30 hover:border-cyan-400/60 transition-colors">
+                        <div className="text-gray-400 text-xs uppercase tracking-wide mb-1">Population</div>
+                        <div className="text-cyan-400 text-base font-bold">
+                          {homeworld.population === "unknown" 
+                            ? "Unknown" 
+                            : Number(homeworld.population).toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
-          </>
-        )}
+
+            {/* Bottom accent */}
+            <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-yellow-400 to-transparent"></div>
+          </div>
+        </div>
       </div>
+    </div>
     </div>
   );
 }
