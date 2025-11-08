@@ -22,7 +22,7 @@ export default function App() {
   }, [auth.token, dispatch]);
 
   return (
-    <BrowserRouter basename="/star-wars">
+    <BrowserRouter basename="/StarWars">
       <Routes>
         <Route path="/login" element={<LoginForm />} />
         <Route path="/signup" element={<SignupForm />} />

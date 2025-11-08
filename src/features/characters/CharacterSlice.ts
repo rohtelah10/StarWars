@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_BASE = "https://swapi.dev/api/people/";
+const API_PEOPLE = "https://swapi.dev/api/people/";
 
 export interface Character {
   name: string;
@@ -47,6 +47,26 @@ const initialState: CharacterState = {
   },
 };
 
+// Helper to fetch a single resource by URL
+async function fetchResource(url: string) {
+  const res = await axios.get(url);
+  return res.data;
+}
+
+// Helper to fetch multiple characters by array of URLs
+async function fetchCharactersByUrls(urls: string[]): Promise<Character[]> {
+  const results: Character[] = [];
+  for (const url of urls) {
+    try {
+      const data = await fetchResource(url);
+      results.push(data);
+    } catch (err) {
+      console.warn("Failed to fetch character:", url);
+    }
+  }
+  return results;
+}
+
 export const fetchCharacters = createAsyncThunk<
   { results: Character[]; count: number },
   { page?: number; searchTerm?: string; filters?: Filters },
@@ -55,45 +75,62 @@ export const fetchCharacters = createAsyncThunk<
   "characters/fetchCharacters",
   async ({ page = 1, searchTerm = "", filters }, thunkAPI) => {
     try {
-      // 1️⃣ Fetch base people
-      const peopleRes = await axios.get(`${API_BASE}?page=${page}&search=${searchTerm}`);
-      let people: Character[] = peopleRes.data.results;
-      const totalCountFromAPI = peopleRes.data.count;
+      let allCharacters: Character[] = [];
+      let totalCount = 0;
 
-      // 2️⃣ Filter by Species
+      // 1️⃣ Name search first
+      const peopleRes = await axios.get(`${API_PEOPLE}?page=${page}&search=${encodeURIComponent(searchTerm)}`);
+      allCharacters = peopleRes.data.results;
+      totalCount = peopleRes.data.count;
+
+      // 2️⃣ Species filter
       if (filters?.species) {
         const speciesRes = await axios.get(
           `https://swapi.dev/api/species/?name=${encodeURIComponent(filters.species)}`
         );
         const matchingSpecies = speciesRes.data.results[0];
-        if (matchingSpecies) {
-          people = people.filter((p) => matchingSpecies.people.includes(p.url));
+        console.log("speciesRes : ", speciesRes);
+        console.log("matching species : ", matchingSpecies);
+        if (matchingSpecies && matchingSpecies.people.length > 0) {
+          allCharacters = await fetchCharactersByUrls(matchingSpecies.people);
+          totalCount = allCharacters.length;
+        } else {
+          allCharacters = [];
+          totalCount = 0;
         }
       }
 
-      // 3️⃣ Filter by Homeworld
+      // 3️⃣ Homeworld filter
       if (filters?.homeworld) {
         const planetRes = await axios.get(
           `https://swapi.dev/api/planets/?name=${encodeURIComponent(filters.homeworld)}`
         );
         const matchingPlanet = planetRes.data.results[0];
         if (matchingPlanet) {
-          people = people.filter((p) => p.homeworld === matchingPlanet.url);
+          allCharacters = allCharacters.filter((p) => p.homeworld === matchingPlanet.url);
+          totalCount = allCharacters.length;
+        } else {
+          allCharacters = [];
+          totalCount = 0;
         }
       }
 
-      // 4️⃣ Filter by Film
+      // 4️⃣ Film filter
       if (filters?.film) {
         const filmRes = await axios.get(
           `https://swapi.dev/api/films/?title=${encodeURIComponent(filters.film)}`
         );
         const matchingFilm = filmRes.data.results[0];
         if (matchingFilm) {
-          people = people.filter((p) => matchingFilm.characters.includes(p.url));
+          allCharacters = allCharacters.filter((p) => matchingFilm.characters.includes(p.url));
+          totalCount = allCharacters.length;
+        } else {
+          allCharacters = [];
+          totalCount = 0;
         }
       }
 
-      return { results: people, count: totalCountFromAPI };
+      return { results: allCharacters, count: totalCount };
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message || "Failed to fetch characters");
     }
