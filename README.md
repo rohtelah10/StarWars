@@ -1,73 +1,66 @@
-# React + TypeScript + Vite
+# Star Wars Character Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React + Redux Toolkit project to browse Star Wars characters with search, filtering, pagination, and dynamic images.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## How to Run
 
-## React Compiler
+1. Clone the repository:
+   ```bash
+   git clone <repo-url>
+   cd <repo-folder>
+   ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-## Expanding the ESLint configuration
+3. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+4. Open your browser at [http://localhost:5173](http://localhost:5173).
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Features Implemented
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Search by Name:** Partial match search for characters.
+- **Filters:** Filter characters by species, homeworld, and films.
+- **Pagination:** Navigate between pages of characters.
+- **Character Modal:** Click on a character to view details.
+- **Dynamic Images:** Character images fetched dynamically from Unsplash.
+- **Optimized Dropdowns:** Filter options derived from loaded characters, no unnecessary API calls.
+- **Combined Search + Filter:** Works together seamlessly.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Bonus / Extras
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- Debounced search input for better performance.
+- Cached API requests for species, planets, and films to reduce network calls.
+- Clean, responsive UI with dark mode support.
+
+---
+
+## Design Choices / Trade-offs
+
+- **Unsplash for images:** No official Star Wars character images API available; using Unsplash ensures dynamic images but may not always match the exact character.
+- **Filtering logic:** Filters are applied via additional API calls when possible, otherwise locally on fetched characters.
+- **Pagination:** Simple page-based pagination, relies on SWAPI’s page parameter.
+- **Local state caching:** Resource names (films, species, homeworld) cached to avoid repeated fetches.
+
+---
+
+## Notes
+
+- SWAPI API is sometimes rate-limited; caching and local filtering help reduce requests.
+- All features are implemented in a single-page React app using Redux Toolkit for state management.
+

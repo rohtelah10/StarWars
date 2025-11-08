@@ -6,15 +6,53 @@ import CharacterModal from "./CharacterModal";
 
 export default function CharacterList() {
   const dispatch = useAppDispatch();
-  const { characters, loading, error, page, totalCount, searchTerm, filters } = useAppSelector((s) => s.characters);
+  const { characters, loading, error, page, totalCount, searchTerm, filters } =
+    useAppSelector((s) => s.characters);
   const [selected, setSelected] = useState<Character | null>(null);
+  const UNSPLASH_KEY = "GgFaeMc10F647oeyVQr-CCRqTliE0oY8ahMbYWZaapE";
+  const [images, setImages] = useState<Record<string, string>>({});
+
+  async function fetchCharacterImage(name: string): Promise<string> {
+    try {
+      const response = await fetch(
+        `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
+          name + " star wars"
+        )}&client_id=${UNSPLASH_KEY}&per_page=1`
+      );
+      const data = await response.json();
+      if (data.results && data.results.length > 0) {
+        return data.results[0].urls.small; // small-sized image
+      }
+      return `https://picsum.photos/seed/${name}/200`; // fallback
+    } catch (err) {
+      console.error("Error fetching image:", err);
+      return `https://picsum.photos/seed/${name}/200`; // fallback
+    }
+  }
+
+  useEffect(() => {
+    characters.forEach(async (char) => {
+      if (!images[char.name]) {
+        const url = await fetchCharacterImage(char.name);
+        setImages((prev) => ({ ...prev, [char.name]: url }));
+      }
+    });
+  }, [characters]);
 
   useEffect(() => {
     dispatch(fetchCharacters({ page, searchTerm, filters }));
   }, [dispatch, page, searchTerm, filters]);
 
-  if (loading) return <p className="text-center text-gray-500 mt-8">Loading characters...</p>;
-  if (error) return <p className="text-center text-red-500 mt-8">Failed to load characters: {error}</p>;
+  if (loading)
+    return (
+      <p className="text-center text-gray-500 mt-8">Loading characters...</p>
+    );
+  if (error)
+    return (
+      <p className="text-center text-red-500 mt-8">
+        Failed to load characters: {error}
+      </p>
+    );
 
   return (
     <div>
@@ -28,12 +66,19 @@ export default function CharacterList() {
             onClick={() => setSelected(char)}
           >
             <img
-              src={`https://picsum.photos/seed/${char.name}/200`}
+              src={
+                images[char.name] ||
+                `https://picsum.photos/seed/${char.name}/200`
+              }
               alt={char.name}
               className="w-24 h-24 rounded-full mb-4 object-cover"
             />
-            <h3 className="font-semibold text-gray-800 dark:text-gray-100">{char.name}</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{char.species.length > 0 ? "Unique Species" : "Human (default)"}</p>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-100">
+              {char.name}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              {char.species.length > 0 ? "Unique Species" : "Human (default)"}
+            </p>
           </div>
         ))}
       </div>
@@ -59,7 +104,12 @@ export default function CharacterList() {
         </button>
       </div>
 
-      {selected && <CharacterModal character={selected} onClose={() => setSelected(null)} />}
+      {selected && (
+        <CharacterModal
+          character={selected}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </div>
   );
 }
