@@ -1,4 +1,3 @@
-// src/features/characters/CharacterList.tsx
 import React, { useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
 import { fetchCharacters, setPage } from "./characterSlice";
@@ -7,27 +6,20 @@ import CharacterModal from "./CharacterModal";
 
 export default function CharacterList() {
   const dispatch = useAppDispatch();
-  const { characters, loading, error, page, totalCount, searchTerm } = useAppSelector(
-    (s) => s.characters
-  );
+  const { characters, loading, error, page, totalCount, searchTerm, filters } = useAppSelector((s) => s.characters);
   const [selected, setSelected] = useState<Character | null>(null);
 
   useEffect(() => {
-    dispatch(fetchCharacters( { page, searchTerm }));
-  }, [dispatch, page, searchTerm]);
+    dispatch(fetchCharacters({ page, searchTerm, filters }));
+  }, [dispatch, page, searchTerm, filters]);
 
-  if (loading)
-    return <p className="text-center text-gray-500 mt-8">Loading characters...</p>;
-
-  if (error)
-    return (
-      <p className="text-center text-red-500 mt-8">
-        Failed to load characters: {error}
-      </p>
-    );
+  if (loading) return <p className="text-center text-gray-500 mt-8">Loading characters...</p>;
+  if (error) return <p className="text-center text-red-500 mt-8">Failed to load characters: {error}</p>;
 
   return (
     <div>
+      {/* <CharacterFilters /> */}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {characters.map((char) => (
           <div
@@ -40,12 +32,8 @@ export default function CharacterList() {
               alt={char.name}
               className="w-24 h-24 rounded-full mb-4 object-cover"
             />
-            <h3 className="font-semibold text-gray-800 dark:text-gray-100">
-              {char.name}
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              {char.species.length > 0 ? "Unique Species" : "Human (default)"}
-            </p>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-100">{char.name}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{char.species.length > 0 ? "Unique Species" : "Human (default)"}</p>
           </div>
         ))}
       </div>
@@ -71,10 +59,7 @@ export default function CharacterList() {
         </button>
       </div>
 
-      {/* Modal */}
-      {selected && (
-        <CharacterModal character={selected} onClose={() => setSelected(null)} />
-      )}
+      {selected && <CharacterModal character={selected} onClose={() => setSelected(null)} />}
     </div>
   );
 }
