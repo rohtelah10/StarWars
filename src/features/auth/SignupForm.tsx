@@ -150,9 +150,9 @@ export default function SignupForm() {
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">
-                    <span>🚀</span>
+               
                     Enlist Now
-                    <span>🚀</span>
+                 
                   </span>
                 )}
               </button>

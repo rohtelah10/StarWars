@@ -63,11 +63,7 @@ export default function CharacterFilters() {
 
         {/* Title */}
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-extrabold tracking-widest">
-            <span className="bg-gradient-to-r from-yellow-200 via-yellow-400 to-yellow-200 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(250,204,21,0.8)]">
-              GALACTIC SEARCH FILTERS
-            </span>
-          </h2>
+          <h2 className="text-2xl font-extrabold tracking-widest"> <span className="bg-gradient-to-r from-yellow-200 via-yellow-400 to-yellow-200 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(250,204,21,0.8)]"> 🔍 GALACTIC SEARCH FILTERS </span> </h2>
           <div className="h-px bg-gradient-to-r from-transparent via-yellow-400/60 to-transparent mt-2"></div>
         </div>
 

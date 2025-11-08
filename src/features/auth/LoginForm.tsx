@@ -129,9 +129,8 @@ export default function LoginForm() {
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">
-                    <span>⚡</span>
+                    
                     Access System
-                    <span>⚡</span>
                   </span>
                 )}
               </button>

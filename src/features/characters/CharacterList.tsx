@@ -21,7 +21,7 @@ export default function CharacterList() {
     try {
       const response = await fetch(
         `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
-          name + " star wars"
+          name + " dark " 
         )}&client_id=${UNSPLASH_KEY}&per_page=1`
       );
       const data = await response.json();
